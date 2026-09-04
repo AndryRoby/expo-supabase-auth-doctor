@@ -199,7 +199,15 @@
 
   .ask { display:flex; flex-wrap:wrap; align-items:center; gap:14px 24px; }
   .ask p { margin:0; color:var(--ink-2); max-width:56ch; }
-  #pro-interest-btn:disabled { color:var(--ok); border-color:var(--ok); }
+  .subscribe-ask { border-top:1px solid var(--line); margin-top:24px; padding-top:24px; }
+  .subscribe-form { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .subscribe-form input[type="email"] { height:44px; min-width:0; flex:1 1 240px; padding:0 14px; border:1px solid var(--line); border-radius:4px; background:var(--paper-2); color:var(--ink); font:15px/1 var(--sans); }
+  .subscribe-form input[type="email"]::placeholder { color:var(--muted); }
+  .subscribe-form .btn { flex:none; }
+  .hp { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  #subscribe-thanks { color:var(--ok); font-weight:600; }
+  #subscribe-error { color:var(--accent); font-weight:600; }
+  @media (max-width: 480px) { .subscribe-form input[type="email"], .subscribe-form button { width:100%; } }
 
   details { border-top:1px solid var(--line); padding:14px 0; }
   details:last-of-type { border-bottom:1px solid var(--line); }
@@ -585,10 +593,16 @@
     </div>
   </section>
 
-  <section id="pro">
-    <div class="wrap ask">
-      <p><b>Would a Pro version be useful?</b> Same idea for Firebase, Clerk, and Next.js redirect setups. One click tells me whether it is worth building.</p>
-      <button class="btn btn-line" id="pro-interest-btn" type="button">I'd use a Pro version</button>
+  <section id="subscribe">
+    <div class="wrap ask subscribe-ask">
+      <p><b>Tell me when a new tool lands.</b> New tools only. No newsletter, no sharing. Reply to any mail to be removed.</p>
+      <form id="subscribe-form" class="subscribe-form" data-subscribe data-source="expo-supabase" data-lang="en" data-thanks="subscribe-thanks" data-error="subscribe-error" novalidate>
+        <div class="hp" aria-hidden="true"><input type="text" name="website" id="subscribe-website" tabindex="-1" autocomplete="off"></div>
+        <input type="email" id="subscribe-email" name="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" aria-label="Email address">
+        <button class="btn btn-solid" type="submit">Notify me</button>
+      </form>
+      <p id="subscribe-thanks" hidden>Thanks. You will hear from us only when something new is live.</p>
+      <p id="subscribe-error" hidden>Could not save. Write to <a href="mailto:andrej@arling.sk">andrej@arling.sk</a>.</p>
     </div>
   </section>
 
@@ -630,7 +644,7 @@
   <div class="wrap cols">
     <div><b>ARLing s. r. o.</b><br>Ivanská cesta 32E<br>821 04 Bratislava, Slovakia</div>
     <div>Company ID 56583486<br>VAT ID SK2122352100<br><a href="mailto:andrej@arling.sk">andrej@arling.sk</a></div>
-    <div><a href="https://github.com/AndryRoby/expo-supabase-auth-doctor/issues" target="_blank" rel="noopener">Report a missed case</a> &middot; <a href="llms.txt">llms.txt</a> &middot; <a href="sitemap.xml">sitemap</a> &middot; <a href="#top">back to top &uarr;</a><br>More <a href="https://arling.sk/">ARLing tools</a>. Provided as is, without warranty. Anonymous visit counts via self-hosted Umami; never what you type.</div>
+    <div><a href="https://github.com/AndryRoby/expo-supabase-auth-doctor/issues" target="_blank" rel="noopener">Report a missed case</a> &middot; <a href="llms.txt">llms.txt</a> &middot; <a href="sitemap.xml">sitemap</a> &middot; <a href="https://arling.sk/privacy/">Privacy</a> &middot; <a href="#top">back to top &uarr;</a><br>More <a href="https://arling.sk/">ARLing tools</a>. Provided as is, without warranty. Anonymous visit counts via self-hosted Umami; never what you type.</div>
   </div>
 </footer>
 
@@ -675,7 +689,6 @@
   const copyBtn = $('copy-btn');
   const rawToggleBtn = $('raw-toggle-btn');
   const copyLinkBtn = $('copy-link-btn');
-  const proBtn = $('pro-interest-btn');
   const meta = $('response-meta');
   const statusPill = $('status-pill');
   const timing = $('timing');
@@ -1029,13 +1042,6 @@
     setTimeout(() => { copyLinkBtn.textContent = 'Copy link to this diagnosis'; }, 1400);
   });
 
-  // ── Pro interest ─────────────────────────────────────────────────────
-  proBtn.addEventListener('click', () => {
-    track('pro_interest');
-    proBtn.textContent = 'Noted, thanks';
-    proBtn.disabled = true;
-  });
-
   // ── init ─────────────────────────────────────────────────────────────
   configToForm(SAMPLE_CONFIG);
   input.value = JSON.stringify(SAMPLE_CONFIG, null, 2);
@@ -1056,6 +1062,7 @@
     });
   });
 </script>
+<script src="subscribe.js" defer></script>
 
 </body>
 </html>
