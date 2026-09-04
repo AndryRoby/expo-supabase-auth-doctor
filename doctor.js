@@ -1,4 +1,4 @@
-// doctor.js — Redirect Doctor core logic.
+// doctor.js: Redirect Doctor core logic.
 //
 // Pure, deterministic, 100% client-side: given an Expo + Supabase OAuth
 // redirect configuration, works out the exact redirect URL each Expo
@@ -81,14 +81,14 @@ function computeExpectedRedirects(cfg) {
     expoGo: buildExpoGoUrl(normPath, '127.0.0.1', port),
     expoGoLan: lanIp ? buildExpoGoUrl(normPath, lanIp, port) : null,
     devBuild: devBuildUrl,
-    standalone: devBuildUrl, // same formula per Expo docs — both use the native scheme
+    standalone: devBuildUrl, // same formula per Expo docs: both use the native scheme
     web: buildWebUrl(supabase.siteUrl, normPath),
     supabaseCallback: buildSupabaseCallback(supabase.projectUrl),
   };
 }
 
 // ───────────────────────── Supabase redirect-URL glob matcher ─────────────────────────
-// Per https://supabase.com/docs/guides/auth/redirect-urls — "." and "/" are
+// Per https://supabase.com/docs/guides/auth/redirect-urls: "." and "/" are
 // separator characters:
 //   *   any run of non-separator characters
 //   **  any run of characters, including separators
@@ -226,7 +226,7 @@ export function diagnose(config) {
       problems.push({
         severity: 'high',
         code: 'invalid_scheme',
-        message: `"${scheme}" can't be used as expo.scheme — http/https are reserved and can't be registered as your app's deep-link handler.`,
+        message: `"${scheme}" can't be used as expo.scheme: http/https are reserved and can't be registered as your app's deep-link handler.`,
         where: 'expo.scheme',
       });
     } else if (/\s/.test(scheme) || !/^[a-z][a-z0-9+.-]*$/i.test(scheme) || /[A-Z]/.test(scheme)) {
@@ -259,7 +259,7 @@ export function diagnose(config) {
     problems.push({
       severity: 'high',
       code: 'site_url_is_localhost',
-      message: 'Supabase Site URL still points to localhost. Supabase falls back to Site URL whenever redirectTo is missing or not on the allow-list, so a rejected redirect silently sends users to localhost — including in production.',
+      message: 'Supabase Site URL still points to localhost. Supabase falls back to Site URL whenever redirectTo is missing or not on the allow-list, so a rejected redirect silently sends users to localhost: including in production.',
       where: 'supabase.siteUrl',
     });
     fixes.push({
@@ -271,7 +271,7 @@ export function diagnose(config) {
     problems.push({
       severity: 'low',
       code: 'web_site_url_not_https',
-      message: 'Site URL does not use https. Use https in production — OAuth providers and browsers increasingly reject plain-http redirect targets.',
+      message: 'Site URL does not use https. Use https in production: OAuth providers and browsers increasingly reject plain-http redirect targets.',
       where: 'supabase.siteUrl',
     });
   }
@@ -282,7 +282,7 @@ export function diagnose(config) {
     problems.push({
       severity: 'medium',
       code: 'project_url_unusual',
-      message: `"${projectUrl}" doesn't look like a standard https://<ref>.supabase.co project URL. If this is a custom domain, confirm it's mapped correctly — otherwise check for a typo.`,
+      message: `"${projectUrl}" doesn't look like a standard https://<ref>.supabase.co project URL. If this is a custom domain, confirm it's mapped correctly: otherwise check for a typo.`,
       where: 'supabase.projectUrl',
     });
   } else if (!projectUrl) {
@@ -343,7 +343,7 @@ export function diagnose(config) {
       ? `Add "${scheme}://**" (covers every path under your scheme) to the Supabase redirect allow-list.`
       : 'Add your app scheme, e.g. "myapp://**", to the Supabase redirect allow-list.'
   );
-  checklist.push(`If you also test in Expo Go, allow-list its dev URL too: "${expoGoUrl}" — Expo Go uses exp://, not your custom scheme.`);
+  checklist.push(`If you also test in Expo Go, allow-list its dev URL too: "${expoGoUrl}": Expo Go uses exp://, not your custom scheme.`);
 
   // ── 7. provider console has the exact Supabase callback? ───────────
   const providerName = ['google', 'apple', 'github', 'other'].includes(provider.name) ? provider.name : 'other';
@@ -356,7 +356,7 @@ export function diagnose(config) {
       problems.push({
         severity: 'high',
         code: 'provider_redirect_uri_missing',
-        message: `${providerLabel(providerName)} doesn't contain the exact URL "${supabaseCallback}". OAuth providers require an exact match here — wildcards aren't accepted.`,
+        message: `${providerLabel(providerName)} doesn't contain the exact URL "${supabaseCallback}". OAuth providers require an exact match here: wildcards aren't accepted.`,
         where: 'provider.authorizedRedirectUris',
       });
       fixes.push({
@@ -373,7 +373,7 @@ export function diagnose(config) {
     problems.push({
       severity: 'medium',
       code: 'flow_type_not_pkce',
-      message: `flowType is "${flowType}". PKCE is the recommended flow for native apps — implicit flow returns tokens in the URL fragment, which in-app browsers and deep links don't always preserve.`,
+      message: `flowType is "${flowType}". PKCE is the recommended flow for native apps: implicit flow returns tokens in the URL fragment, which in-app browsers and deep links don't always preserve.`,
       where: 'code.flowType',
     });
     fixes.push({
@@ -420,7 +420,7 @@ export function diagnose(config) {
     problems.push({
       severity: 'medium',
       code: 'missing_exchange_code_for_session',
-      message: "flowType is pkce but the redirect handler isn't calling exchangeCodeForSession(url) yet. With PKCE, the callback URL carries a code param that must be exchanged for a session — it isn't a session by itself.",
+      message: "flowType is pkce but the redirect handler isn't calling exchangeCodeForSession(url) yet. With PKCE, the callback URL carries a code param that must be exchanged for a session: it isn't a session by itself.",
       where: 'code.usesExchangeCodeForSession',
     });
     fixes.push({
@@ -431,7 +431,7 @@ export function diagnose(config) {
   }
 
   checklist.push('Use flowType: "pkce" and call exchangeCodeForSession(url) in your deep-link handler.');
-  checklist.push('Re-run this check after every change — provider consoles and Supabase settings drift independently.');
+  checklist.push('Re-run this check after every change: provider consoles and Supabase settings drift independently.');
 
   const sorted = sortProblems(problems);
   const highCount = sorted.filter((p) => p.severity === 'high').length;
@@ -461,7 +461,7 @@ export function diagnose(config) {
     fixes,
     checklist,
     disclaimer:
-      'Read-only, client-side analysis of the values you entered. Nothing is verified against your live Supabase project, app.json, or provider console — always confirm in your own environment before shipping.',
+      'Read-only, client-side analysis of the values you entered. Nothing is verified against your live Supabase project, app.json, or provider console: always confirm in your own environment before shipping.',
   };
 }
 
