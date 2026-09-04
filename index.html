@@ -9,9 +9,9 @@
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Expo + Supabase OAuth Redirect Doctor" />
 <meta property="og:description" content="Paste your Expo + Supabase redirect config and get exact mismatch fixes before wasting another afternoon. Free, client-side — nothing leaves your browser." />
-<meta property="og:url" content="https://andryroby.github.io/expo-supabase-auth-doctor/" />
-<link rel="canonical" href="https://andryroby.github.io/expo-supabase-auth-doctor/" />
-<meta property="og:image" content="https://andryroby.github.io/expo-supabase-auth-doctor/icon-512.png" />
+<meta property="og:url" content="https://arling.sk/expo-supabase-auth-doctor/" />
+<link rel="canonical" href="https://arling.sk/expo-supabase-auth-doctor/" />
+<meta property="og:image" content="https://arling.sk/expo-supabase-auth-doctor/icon-512.png" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="alternate icon" href="favicon.ico" />
 <link rel="apple-touch-icon" href="icon-192.png" />
@@ -685,6 +685,84 @@
   }
   .anchor-offset { scroll-margin-top: 70px; }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Redirect Doctor — Expo + Supabase OAuth",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+  },
+  "url": "https://arling.sk/expo-supabase-auth-doctor/",
+  "description": "Paste your Expo + Supabase redirect config and get exact mismatch fixes before wasting another afternoon. Free, client-side — nothing leaves your browser.",
+  "author": {
+    "@type": "Organization",
+    "name": "ARLing s. r. o.",
+    "url": "https://arling.sk/",
+    "email": "andrej@arling.sk"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does Supabase OAuth redirect to localhost in my Expo app?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Supabase falls back to your project's Site URL whenever redirectTo is missing, empty, or not covered by the redirect allow-list. If Site URL is still set to something like http://localhost:3000 — a common default nobody changes after setup — a rejected redirect sends the user there silently, including in production. Fix it by setting Site URL to your real production URL and making sure redirectTo is on the allow-list."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What redirect URL should I add to Supabase for Expo Go?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Expo Go doesn't use your app's custom scheme — it uses exp://127.0.0.1:8081/--/<path> (or your machine's LAN IP instead of 127.0.0.1 when testing on a physical device). Add that exact exp:// URL, or a pattern that covers it, to Supabase's redirect allow-list separately from the scheme://** entry you add for dev/standalone builds."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need exchangeCodeForSession with Expo and Supabase?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, if you're using flowType: 'pkce', which is the recommended flow for native apps. The redirect callback carries a code query parameter, not a session — you must call supabase.auth.exchangeCodeForSession(url) in your deep-link handler to turn that code into an actual session."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What redirect URI do I add in Google Cloud Console for Supabase OAuth?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Add the exact Supabase auth callback URL: https://<your-project-ref>.supabase.co/auth/v1/callback. OAuth providers require an exact string match here — wildcards aren't accepted — so this same URL, not your app's custom scheme, is what goes in Google Cloud Console, the Apple Services ID's Return URLs, or a GitHub OAuth App's Authorization callback URL."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do I get redirect_uri_mismatch between my Expo dev build and standalone app?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dev builds and standalone builds both resolve to the same scheme://path formula — there's no separate 'standalone' URL shape. So a mismatch here almost always means the scheme registered in app.json doesn't match what's on the Supabase allow-list or what redirectTo actually builds, not a real difference between the two build types."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should skipBrowserRedirect be true on native with Supabase signInWithOAuth?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. On native, skipBrowserRedirect: true stops Supabase from trying to issue its own browser redirect; instead you take the returned URL and open it yourself (for example with expo-web-browser), which is what lets the OAuth flow return correctly to your app's custom scheme."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -700,6 +778,7 @@
       <a href="#playground">Diagnose</a>
       <a href="#endpoint" class="hide-mobile">How it works</a>
       <a href="#pricing" class="hide-mobile">Free</a>
+      <a href="#faq" class="hide-mobile">FAQ</a>
       <a href="#playground" class="btn btn-primary btn-sm">Try it →</a>
     </div>
   </div>
@@ -1069,10 +1148,97 @@
   </div>
 </section>
 
+<!-- ───── FAQ ───── -->
+<section id="faq" class="block anchor-offset">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-label">05 / faq</div>
+        <h2>What people actually search for.</h2>
+      </div>
+      <div class="section-aside">
+        Answers to the questions this tool exists to solve — same rules the
+        checker above runs, in plain language.
+      </div>
+    </div>
+
+    <div class="problem-grid">
+      <article class="problem-card">
+        <h3>Why does Supabase OAuth redirect to localhost in my Expo app?</h3>
+        <p>
+          Supabase falls back to your project's <span class="mono">Site URL</span> whenever
+          <span class="mono">redirectTo</span> is missing, empty, or not covered by the redirect
+          allow-list. If Site URL is still set to something like
+          <span class="mono">http://localhost:3000</span> — a common default nobody changes
+          after setup — a rejected redirect sends the user there silently, including in
+          production. Fix it by setting Site URL to your real production URL and making sure
+          <span class="mono">redirectTo</span> is on the allow-list.
+        </p>
+      </article>
+
+      <article class="problem-card">
+        <h3>What redirect URL should I add to Supabase for Expo Go?</h3>
+        <p>
+          Expo Go doesn't use your app's custom scheme — it uses
+          <span class="mono">exp://127.0.0.1:8081/--/&lt;path&gt;</span> (or your machine's LAN
+          IP instead of <span class="mono">127.0.0.1</span> when testing on a physical device).
+          Add that exact <span class="mono">exp://</span> URL, or a pattern that covers it, to
+          Supabase's redirect allow-list separately from the <span class="mono">scheme://**</span>
+          entry you add for dev/standalone builds.
+        </p>
+      </article>
+
+      <article class="problem-card">
+        <h3>Do I need exchangeCodeForSession with Expo and Supabase?</h3>
+        <p>
+          Yes, if you're using <span class="mono">flowType: 'pkce'</span>, which is the
+          recommended flow for native apps. The redirect callback carries a
+          <span class="mono">code</span> query parameter, not a session — you must call
+          <span class="mono">supabase.auth.exchangeCodeForSession(url)</span> in your deep-link
+          handler to turn that code into an actual session.
+        </p>
+      </article>
+
+      <article class="problem-card">
+        <h3>What redirect URI do I add in Google Cloud Console for Supabase OAuth?</h3>
+        <p>
+          Add the exact Supabase auth callback URL:
+          <span class="mono">https://&lt;your-project-ref&gt;.supabase.co/auth/v1/callback</span>.
+          OAuth providers require an exact string match here — wildcards aren't accepted — so
+          this same URL, not your app's custom scheme, is what goes in Google Cloud Console, the
+          Apple Services ID's Return URLs, or a GitHub OAuth App's Authorization callback URL.
+        </p>
+      </article>
+
+      <article class="problem-card">
+        <h3>Why do I get redirect_uri_mismatch between my Expo dev build and standalone app?</h3>
+        <p>
+          Dev builds and standalone builds both resolve to the same
+          <span class="mono">scheme://path</span> formula — there's no separate "standalone" URL
+          shape. So a mismatch here almost always means the scheme registered in
+          <span class="mono">app.json</span> doesn't match what's on the Supabase allow-list or
+          what <span class="mono">redirectTo</span> actually builds, not a real difference between
+          the two build types.
+        </p>
+      </article>
+
+      <article class="problem-card">
+        <h3>Should skipBrowserRedirect be true on native with Supabase signInWithOAuth?</h3>
+        <p>
+          Yes. On native, <span class="mono">skipBrowserRedirect: true</span> stops Supabase from
+          trying to issue its own browser redirect; instead you take the returned URL and open it
+          yourself (for example with <span class="mono">expo-web-browser</span>), which is what
+          lets the OAuth flow return correctly to your app's custom scheme.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- ───── Final CTA ───── -->
 <section id="buy" class="final-cta anchor-offset">
   <div class="wrap">
-    <div class="section-label" style="margin-bottom: 18px;">05 / get in</div>
+    <div class="section-label" style="margin-bottom: 18px;">06 / get in</div>
     <h2>Stop debugging redirect URLs at 2am.</h2>
     <p>
       Paste your config, get the exact mismatch, fix it, ship it — free, and

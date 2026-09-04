@@ -1,6 +1,6 @@
 # Launch posts — Redirect Doctor
 
-Tool: https://andryroby.github.io/expo-supabase-auth-doctor/
+Tool: https://arling.sk/expo-supabase-auth-doctor/
 All copy below is ready to paste. Read each platform's current rules
 immediately before posting (noted per-section) — rules and mod
 sentiment change over time and this file won't stay current with them.
@@ -30,7 +30,7 @@ Supabase but the browser never opens Google's account picker.
 >
 > I put together a free, client-side checker for this class of bug —
 > paste your `app.json` scheme and Supabase redirect config and it
-> flags the mismatch directly: https://andryroby.github.io/expo-supabase-auth-doctor/
+> flags the mismatch directly: https://arling.sk/expo-supabase-auth-doctor/
 > Hope it saves someone else the afternoon it cost me.
 
 ### 1b. `orgs/supabase` discussion #10754
@@ -51,7 +51,7 @@ Navigation's linking config expected *query* params. Marked answered.
 > `app.json` scheme + Supabase redirect config and it flags
 > fragment-vs-query issues, scheme mismatches, and allow-list gaps
 > before they cost you an afternoon like this thread:
-> https://andryroby.github.io/expo-supabase-auth-doctor/ — everything
+> https://arling.sk/expo-supabase-auth-doctor/ — everything
 > runs in the browser, nothing you paste is uploaded.
 
 ### 1c. `orgs/supabase` discussion #33633
@@ -73,7 +73,7 @@ URL before the handler sees it.
 > problem (deep link scheme setup, fragment-vs-query mismatches, Site
 > URL / Redirect URL allow-list gaps): it won't fix the cold-start
 > race for you, but it rules out config in under a minute so you know
-> where to keep digging: https://andryroby.github.io/expo-supabase-auth-doctor/
+> where to keep digging: https://arling.sk/expo-supabase-auth-doctor/
 
 ### 1d. `orgs/community` discussion #158409
 Apple sign-in → `invalid_request - Invalid web redirect url`. Google
@@ -93,7 +93,7 @@ error 1`. Unresolved.
 > I built a free client-side tool for this exact triage — paste your
 > bundle ID/scheme and your Supabase + provider redirect URLs and it
 > flags which one doesn't match before you burn more time in ngrok:
-> https://andryroby.github.io/expo-supabase-auth-doctor/ Worth
+> https://arling.sk/expo-supabase-auth-doctor/ Worth
 > double-checking the Apple Service ID's Return URLs list specifically
 > — that's the most common miss behind `invalid_request`.
 
@@ -159,7 +159,7 @@ console settings) and it flags the exact mismatch causing your login
 redirect to fail. Static, client-side, no signup, no backend —
 everything runs in your browser.
 
-https://andryroby.github.io/expo-supabase-auth-doctor/
+https://arling.sk/expo-supabase-auth-doctor/
 
 It's a config linter, not a live tester — it won't catch runtime bugs
 in your deep-link handling, just the config mismatches (Site URL

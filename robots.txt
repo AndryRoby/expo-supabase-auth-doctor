@@ -1,4 +1,25 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://andryroby.github.io/expo-supabase-auth-doctor/sitemap.xml
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+Sitemap: https://arling.sk/expo-supabase-auth-doctor/sitemap.xml
