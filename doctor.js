@@ -264,7 +264,7 @@ export function diagnose(config) {
     });
     fixes.push({
       title: 'Set Site URL to your production URL',
-      value: webUrl && webUrl !== 'http://localhost:8081' ? webUrl : 'https://your-production-domain.com',
+      value: webUrl && !siteUrlIsLocal && webUrl !== 'http://localhost:8081' ? webUrl : 'https://your-production-domain.com',
       where: 'Supabase → Authentication → URL Configuration → Site URL',
     });
   } else if (runtime === 'web' && siteUrl && !/^https:\/\//i.test(siteUrl)) {

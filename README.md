@@ -1,6 +1,6 @@
 # Redirect Doctor — Expo + Supabase OAuth
 
-Live: https://andryroby.github.io/expo-supabase-auth-doctor/
+Live: https://arling.sk/expo-supabase-auth-doctor/
 
 A free, static, client-side tool that checks your Expo + Supabase OAuth
 redirect configuration (Google / Apple / GitHub / etc. via Supabase Auth)

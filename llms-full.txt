@@ -1,0 +1,121 @@
+# Redirect Doctor — Expo + Supabase OAuth
+
+> Free, client-side checker that diagnoses Expo + Supabase OAuth redirect mismatches: paste your Expo scheme/path/runtime, Supabase project URL, Site URL and redirect allow-list, provider redirect URIs, and code flags, and get the exact redirect URL each Expo runtime will produce, the mismatches with severity, copy-paste fixes, and a checklist.
+
+## What it does
+
+Redirect Doctor takes the Expo + Supabase OAuth configuration that is normally scattered across `app.json`, the Supabase dashboard, and an OAuth provider console (Google, Apple, GitHub), and cross-checks it against the redirect URL each Expo runtime actually produces. It reports concrete mismatches — not generic advice — plus copy-paste fixes and a checklist. The whole check runs as one pure function, `diagnose(config)`, in `doctor.js`.
+
+## Who it is for
+
+Developers building a React Native app with Expo and Supabase Auth whose OAuth flow is stuck: redirecting to `localhost` in production, opening a blank browser tab, silently doing nothing, or throwing `invalid_request` / `redirect_uri_mismatch`. Useful whether you're setting up OAuth for the first time or debugging a flow that broke after a Supabase or provider console change.
+
+## How to use
+
+Inputs (via a form or raw JSON, and shareable as a permalink):
+- Expo: `scheme`, redirect `path`, `runtime` (Expo Go / dev build / standalone / web), Expo Go LAN IP and port.
+- Supabase: `projectUrl` (`https://<ref>.supabase.co`), `siteUrl`, `allowedRedirectUrls` (glob patterns).
+- OAuth provider: `name` (google/apple/github/other), `authorizedRedirectUris`.
+- Your code: `redirectTo` value, `flowType` (pkce/implicit), `skipBrowserRedirect`, `detectSessionInUrl`, whether you call `exchangeCodeForSession()`.
+
+Outputs: `status` (pass/warn/fail), a plain-language `summary`, `expectedRedirects` for every runtime (Expo Go, dev build, standalone, web, Supabase provider callback), a sorted `problems` list (severity + message + where), copy-paste `fixes`, a `checklist`, and a disclaimer. Everything computes client-side, in milliseconds, with zero network requests.
+
+## What it checks
+
+- **Expo scheme validity** — empty, reserved (`http`/`https`), or malformed custom URL schemes for native runtimes.
+- **Redirect path normalization** — leading/repeated slashes that would produce a double slash in the final URL.
+- **Supabase Site URL fallback** — Site URL still pointing at `localhost`, which Supabase silently falls back to whenever `redirectTo` is missing or rejected; also flags non-`https` Site URLs on web.
+- **Supabase project URL shape** — malformed or missing `https://<ref>.supabase.co` project URL.
+- **redirectTo vs. actual runtime output** — whether your `code.redirectTo` matches what `makeRedirectUri()` actually produces for Expo Go / dev build / standalone / web.
+- **Supabase redirect allow-list coverage** — whether the redirect value is matched by any glob pattern in `supabase.allowedRedirectUrls` (matched the same way Supabase matches it: `*`, `**`, `?`, character classes).
+- **OAuth provider console callback** — whether the exact `https://<ref>.supabase.co/auth/v1/callback` URL is present in the provider's authorized redirect URIs (Google Cloud Console, Apple Services ID Return URLs, GitHub OAuth App).
+- **flowType** — recommends PKCE over implicit flow for native apps.
+- **skipBrowserRedirect** — should be `true` on native so the app opens the redirect URL itself.
+- **detectSessionInUrl** — recommended `false` on native (no browser URL to parse there).
+- **exchangeCodeForSession** — required when `flowType` is `pkce`, since the callback carries a code, not a session, until exchanged.
+
+## Privacy
+
+100% client-side. Nothing you paste or type is uploaded, stored on a server, or sent to the tool's author — the check runs entirely in your browser's JavaScript engine against the values you entered, not against your live Supabase project. The only network activity is loading the page's own static assets and anonymous, content-free usage-count analytics (self-hosted Umami: event names and counts only). No account, no login, no cookies for the tool itself. The "Copy link" feature encodes your config into the URL fragment — nothing is stored server-side.
+
+## Links
+
+- Tool: https://arling.sk/expo-supabase-auth-doctor/ (also at https://arling.sk/expo-supabase-auth-doctor/)
+- GitHub repo: https://github.com/AndryRoby/expo-supabase-auth-doctor
+- Hub (more free tools by the same author): https://arling.sk/
+
+## Contact
+
+ARLing s. r. o., Bratislava, Slovakia — andrej@arling.sk
+
+---
+
+## Worked example
+
+This is the tool's built-in example config (the one loaded when you press "example" on the live page) — a dev-build Expo app with Google OAuth, where the Supabase Site URL was never updated from its local-dev default.
+
+Sample input:
+
+```json
+{
+  "expo": {
+    "scheme": "myapp",
+    "path": "auth/callback",
+    "runtime": "dev-build",
+    "lanIp": "",
+    "port": 8081
+  },
+  "supabase": {
+    "projectUrl": "https://abcd1234.supabase.co",
+    "siteUrl": "http://localhost:3000",
+    "allowedRedirectUrls": ["https://myapp.com/**"]
+  },
+  "provider": {
+    "name": "google",
+    "authorizedRedirectUris": ["https://abcd1234.supabase.co/auth/v1/callback"]
+  },
+  "code": {
+    "redirectTo": "myapp://auth/callback",
+    "flowType": "pkce",
+    "skipBrowserRedirect": true,
+    "detectSessionInUrl": false,
+    "usesExchangeCodeForSession": true
+  }
+}
+```
+
+Sample output summary:
+
+- **status**: `fail` (2 blocking mismatches)
+- **summary**: "2 blocking mismatches found. Most urgent: Supabase Site URL still points to localhost. Supabase falls back to Site URL whenever redirectTo is missing or not on the allow-list, so a rejected redirect silently sends users to localhost — including in production."
+- **expectedRedirects**: Expo Go → `exp://127.0.0.1:8081/--/auth/callback`; dev build / standalone → `myapp://auth/callback`; web → `http://localhost:3000/auth/callback`; Supabase provider callback → `https://abcd1234.supabase.co/auth/v1/callback`.
+- **problems** (both `high` severity):
+  1. `site_url_is_localhost` — Supabase's Site URL is still `http://localhost:3000`, so any rejected redirect falls back there, even in production. Fix: point Site URL at the app's real production URL.
+  2. `redirect_not_allowlisted` — `myapp://auth/callback` (what `redirectTo` and the dev-build runtime both produce) isn't covered by `allowedRedirectUrls`, which only contains `https://myapp.com/**`. Fix: add `myapp://**` to Supabase → Authentication → URL Configuration → Redirect URLs.
+- **checklist**:
+  - Add "myapp://**" (covers every path under your scheme) to the Supabase redirect allow-list.
+  - If you also test in Expo Go, allow-list its dev URL too: "exp://127.0.0.1:8081/--/auth/callback" — Expo Go uses exp://, not your custom scheme.
+  - Use flowType: "pkce" and call exchangeCodeForSession(url) in your deep-link handler.
+  - Re-run this check after every change — provider consoles and Supabase settings drift independently.
+
+Everything else in this config (scheme validity, path shape, project URL shape, the Google console callback, flowType, skipBrowserRedirect, detectSessionInUrl, exchangeCodeForSession) is already correct, so no other problems are reported for it.
+
+## FAQ
+
+**Why does Supabase OAuth redirect to localhost in my Expo app?**
+Supabase falls back to your project's Site URL whenever `redirectTo` is missing, empty, or not covered by the redirect allow-list. If Site URL is still set to something like `http://localhost:3000` — a common default nobody changes after setup — a rejected redirect sends the user there silently, including in production. Fix it by setting Site URL to your real production URL and making sure `redirectTo` is on the allow-list.
+
+**What redirect URL should I add to Supabase for Expo Go?**
+Expo Go doesn't use your app's custom scheme — it uses `exp://127.0.0.1:8081/--/<path>` (or your machine's LAN IP instead of `127.0.0.1` when testing on a physical device). Add that exact `exp://` URL, or a pattern that covers it, to Supabase's redirect allow-list separately from the `scheme://**` entry you add for dev/standalone builds.
+
+**Do I need exchangeCodeForSession with Expo and Supabase?**
+Yes, if you're using `flowType: 'pkce'`, which is the recommended flow for native apps. The redirect callback carries a `code` query parameter, not a session — you must call `supabase.auth.exchangeCodeForSession(url)` in your deep-link handler to turn that code into an actual session.
+
+**What redirect URI do I add in Google Cloud Console for Supabase OAuth?**
+Add the exact Supabase auth callback URL: `https://<your-project-ref>.supabase.co/auth/v1/callback`. OAuth providers require an exact string match here — wildcards aren't accepted — so this same URL, not your app's custom scheme, is what goes in Google Cloud Console, the Apple Services ID's Return URLs, or a GitHub OAuth App's Authorization callback URL.
+
+**Why do I get redirect_uri_mismatch between my Expo dev build and standalone app?**
+Dev builds and standalone builds both resolve to the same `scheme://path` formula — there's no separate "standalone" URL shape. So a mismatch here almost always means the scheme registered in `app.json` doesn't match what's on the Supabase allow-list or what `redirectTo` actually builds, not a real difference between the two build types.
+
+**Should skipBrowserRedirect be true on native with Supabase signInWithOAuth?**
+Yes. On native, `skipBrowserRedirect: true` stops Supabase from trying to issue its own browser redirect; instead you take the returned URL and open it yourself (for example with `expo-web-browser`), which is what lets the OAuth flow return correctly to your app's custom scheme.
