@@ -1,0 +1,9 @@
+{
+  "name": "redirect-doctor",
+  "private": true,
+  "type": "module",
+  "description": "Expo + Supabase OAuth Redirect Doctor — static, client-side diagnostic tool. No build step; this file only tells Node/browsers to treat doctor.js as an ES module.",
+  "scripts": {
+    "test": "node tests.mjs"
+  }
+}
