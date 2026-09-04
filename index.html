@@ -106,6 +106,8 @@
   .nav-links a { color: var(--text-2); white-space: nowrap; }
   .nav-links a:hover { color: var(--text); }
   @media (max-width: 720px) { .nav-links .hide-mobile { display: none; } }
+  [hidden] { display: none !important; }
+  .json-pane { display: flex; flex-direction: column; }
   @media (max-width: 400px) { .nav-links { gap: 12px; } }
 
   /* ───── Buttons ───── */
@@ -696,7 +698,7 @@
       <a href="#problem" class="hide-mobile">Problem</a>
       <a href="#playground">Diagnose</a>
       <a href="#endpoint" class="hide-mobile">How it works</a>
-      <a href="#pricing" class="hide-mobile">Pricing</a>
+      <a href="#pricing" class="hide-mobile">Free</a>
       <a href="#playground" class="btn btn-primary btn-sm">Try it →</a>
     </div>
   </div>
@@ -924,7 +926,7 @@
             </div>
           </div>
 
-          <div id="json-pane" hidden style="display:flex; flex-direction:column;">
+          <div id="json-pane" class="json-pane" hidden>
             <textarea class="json-in" id="input" spellcheck="false" wrap="off"></textarea>
             <div class="json-error" id="json-error" hidden></div>
           </div>
