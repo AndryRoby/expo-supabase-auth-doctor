@@ -86,7 +86,7 @@ The rules above are sourced from:
 
 ## Report a problem
 
-Found a redirect failure this tool doesn't catch, or a check that flags something that's actually fine? Open an issue: https://github.com/AndryRoby/expo-supabase-auth-doctor/issues, or write to andrej@arling.sk.
+Found a redirect failure this tool doesn't catch, or a check that flags something that's actually fine? Open an issue: https://github.com/AndryRoby/expo-supabase-auth-doctor/issues, or write to support@arling.sk.
 
 ## License
 
